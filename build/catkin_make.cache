@@ -1,0 +1,2 @@
+jetbot_picam
+-DCATKIN_DEVEL_PREFIX=/home/jetbot/workspace/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jetbot/workspace/catkin_ws/install -G Unix Makefiles
