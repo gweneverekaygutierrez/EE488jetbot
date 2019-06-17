@@ -1,0 +1,10 @@
+<launch>
+    <node name="detectnet"
+          pkg="ros_deep_learning" type="detectnet" output="screen">
+          <param name="model_name" value="pednet"/>
+          <remap from="/detectnet/image_in" to="/cam_pi"/>
+    </node>
+    <node pkg="jetbot_ros" type="jetbot_follow_object.py" name="follow_object" output="screen" />
+    <node pkg="cam_pi" type="cam_pi.py" name="cam_pi" output="screen" />
+
+</launch>
