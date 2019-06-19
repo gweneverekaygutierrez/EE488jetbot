@@ -62,7 +62,7 @@ class image_converter:
                 M = cv2.moments(c)
                 center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-                if radius > 20:
+                if radius > 15:
                     bounding_box_msg = BoundingBox2D()
                     cv2.circle(mask, (int(x), int(y)), int(radius), 100, 2)
                     cv2.circle(mask, center, 5, 250, -1)
