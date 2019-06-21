@@ -72,25 +72,25 @@ def ball_detect_callback(msg):
         # width threshold
         W_THR = 100
 
-        W_THR = 150
+        # W_THR = 160
         # rospy.loginfo("WIDTH %d", bbox_width)
 
         # P-controller for x-position
         Kp = 1/1.3  # P control gain
         speed = Kp * abs(bbox_x - 640/2) / (640/2)  # P controller
         speed = min(speed, 0.50)		  # saturation of speed
-        if speed <= 0.20:		# speed is too low, motor cannot move
-            speed = 0.25
+        if speed <= 0.35:		# speed is too low, motor cannot move #TO DO 0.2 0.35
+            speed = 0.4 #TO DO 0.25 0.4
 
         rospy.loginfo("x:%d, y:%d, height:%d, width:%d, speed: %f",
                       bbox_x, bbox_y, bbox_height, bbox_width, speed)
 
         if bbox_x > 640/2 + 90:
-            rospy.loginfo("left")
+            rospy.loginfo("left %d", speed)
             set_speed(motor_left_ID, -speed)
             set_speed(motor_right_ID, speed)
         elif bbox_x < 640/2 - 90:
-            rospy.loginfo("right")
+            rospy.loginfo("right %d", speed)
             set_speed(motor_left_ID, speed)
             set_speed(motor_right_ID, -speed)
         elif bbox_width < W_THR:
@@ -123,48 +123,48 @@ def goal_detect_callback(msg):
         bbox_height = msg.size_y
         bbox_width = msg.size_x
 
-        W_THR = 100
-
+        W_THR = 290 
+        MARGIN = 110 
+        
         # P-controller for x-position
         Kp = 1/1.3  # P control gain
         speed = Kp * abs(bbox_x - 640/2) / (640/2)  # P controller
         speed = min(speed, 0.50)		  # saturation of speed
 
-        if speed <= 0.15:  # speed is too low, motor cannot move
-            speed = 0
-    
+        if speed <= 0.35:		# speed is too low, motor cannot move #TO DO 0.2
+            speed = 0.4 #TO DO 0.25
+   
 
         rospy.loginfo("Goal x:%d, y:%d, height:%d, width:%d, speed: %f",
                       bbox_x, bbox_y, bbox_height, bbox_width, speed)
 
 
         if BALL_REACH == 1:
-            if bbox_x > 640/2 + 150:
+            if bbox_x > 640/2 + MARGIN:
                 rospy.loginfo("goal left")
                 set_speed(motor_left_ID, -speed)
                 set_speed(motor_right_ID, speed)
-            elif bbox_x < 640/2 - 150:
+            elif bbox_x < 640/2 - MARGIN:
                 rospy.loginfo("goal right")
                 set_speed(motor_left_ID, speed)
                 set_speed(motor_right_ID, -speed)
             elif bbox_width < W_THR:
                 rospy.loginfo("goal forward")
                 # P-controller for distance
-                Kp_h = 1/1.2  # P control gain
+                Kp_h = 1/1.3  # P control gain
                 speed_h = Kp_h * abs(bbox_width - W_THR) / (W_THR)  # P controller
                 speed_h = min(speed_h, 0.50)                  # saturation of speed
                 if speed_h <= 0.2:               # speed is too low, motor cannot move
                     speed_h = 0.3
 
-                set_speed(motor_left_ID, .4)
-                set_speed(motor_right_ID, .4)
+                set_speed(motor_left_ID, .5)
+                set_speed(motor_right_ID, .5)
                 time.sleep(0.1)
             else:
                 rospy.loginfo("goal stop")
                 GOAL_REACH = 1  # reach goal, set flag to move to kick STATE
                 set_speed(motor_left_ID,  0.5)
                 set_speed(motor_right_ID, 0.5)
-    time.sleep(1)
 
 
 # initialization
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         if STATE == STATE_SPIN_BALL:
             # Set motor
-            speed = .4
+            speed = .5 #.4
             rospy.loginfo("SPIN BALL %d", speed)
             set_speed(motor_left_ID, speed)
             set_speed(motor_right_ID, -speed)
@@ -213,7 +213,12 @@ if __name__ == '__main__':
                 STATE = STATE_SPIN_GOAL
 
         elif STATE == STATE_SPIN_GOAL:
-            rospy.loginfo("SPIN GOAL")
+            # Set motor
+            speed = .45 #.4
+            rospy.loginfo("SPIN GOAL %d", speed)
+            set_speed(motor_left_ID, speed)
+            set_speed(motor_right_ID, -speed)
+            time.sleep(.1)
             if SPIN_CHECK_GOAL == 1:  # change STATE
                 STATE = STATE_FIND_GOAL
 
@@ -224,19 +229,27 @@ if __name__ == '__main__':
 
         elif STATE == STATE_KICK:
             rospy.loginfo("KICK")
-            time.sleep(0.7)  # delay before kicking
+            set_speed(motor_left_ID,  0)
+            set_speed(motor_right_ID, 0)
+            rospy.loginfo("KICK 2")
+            time.sleep(1.5)  # delay before kicking
             if GOAL_REACH == 1 and BALL_REACH == 1:
+                rospy.loginfo("KICK 3")
                 # set motor to kick it to the goal
+                set_speed(motor_left_ID, .7)
+                set_speed(motor_right_ID, .7)
+                rospy.loginfo("KICK 4")
+                time.sleep(1)
                 rospy.loginfo("done kicking")
                 set_speed(motor_left_ID,  0)
                 set_speed(motor_right_ID, 0)
                 time.sleep(1)
-                GOAL_REACH = 0
                 BALL_REACH = 0
+                GOAL_REACH = 0
                 SPIN_CHECK_BALL = 0
                 SPIN_CHECK_GOAL = 0
+                time.sleep(1)
                 STATE = STATE_SPIN_BALL
-                time.sleep(3)
 
         rate.sleep()
 

@@ -2,12 +2,12 @@
   <node pkg="jetbot_picam" type="cam_pi.py" name="cam_pi" />
   <group ns="goalpost">
     <node pkg="jetbot_picam" type="color_filter.py" name="goalpost_detector" output="screen">
-      <param name="lower_h" value="90"/>
-      <param name="lower_s" value="90"/>
-      <param name="lower_v" value="50"/>
-      <param name="higher_h" value="160"/>
-      <param name="higher_s" value="255"/>
-      <param name="higher_v" value="200"/>
+      <param name="lower_h" value="100"/>
+      <param name="lower_s" value="150"/>
+      <param name="lower_v" value="30"/>
+      <param name="higher_h" value="140"/>
+      <param name="higher_s" value="240"/>
+      <param name="higher_v" value="255"/>
     </node>
   </group>
 
